@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'constants.dart';
 import 'icon_content.dart';
 import 'reusable_card.dart';
-
-const buttonContainerHeight = 80.0;
-const activeCardColor = Color(0xFF1D1E33);
-const inActiveCardColor = Color(0xFF111328);
-const buttonContainerColor = Color(0xFFEB1555);
-const upperContainerMargin = 15.0;
-const allFontSize = 18.0;
+import 'round_icon_button.dart';
 
 enum ContainerType {
   Gender,
   NoName,
+  Height,
+  weight,
+  age,
 }
 
 enum Gender {
   male,
   female,
+  unKnown,
+}
+
+enum ButtonType {
+  plus,
+  minus,
 }
 
 class InputPage extends StatefulWidget {
@@ -28,28 +32,10 @@ class InputPage extends StatefulWidget {
 }
 
 class _InputPageState extends State<InputPage> {
-  Color femaleCardColor = inActiveCardColor;
-  Color maleCardColor = inActiveCardColor;
-
-  void updateButtonSelection(Gender gender) {
-    setState(() {
-      if (gender == Gender.male) {
-        if (maleCardColor == activeCardColor) {
-          maleCardColor = inActiveCardColor;
-        } else {
-          maleCardColor = activeCardColor;
-          femaleCardColor = inActiveCardColor;
-        }
-      } else {
-        if (femaleCardColor == activeCardColor) {
-          femaleCardColor = inActiveCardColor;
-        } else {
-          femaleCardColor = activeCardColor;
-          maleCardColor = inActiveCardColor;
-        }
-      }
-    });
-  }
+  late Gender selectedGender = Gender.unKnown;
+  int height = 180;
+  int weight = 60;
+  int age = 19;
 
   @override
   Widget build(BuildContext context) {
@@ -69,20 +55,18 @@ class _InputPageState extends State<InputPage> {
   List<Widget> addColumn() {
     List<Widget> list = [];
     list.add(addRows(2, ContainerType.Gender));
-    list.add(addRows(1, ContainerType.NoName));
+    list.add(addRows(1, ContainerType.Height));
     list.add(addRows(2, ContainerType.NoName));
     list.add(
       Container(
-        height: buttonContainerHeight,
+        height: kButtonContainerHeight,
         width: double.infinity,
-        margin: EdgeInsets.only(top: upperContainerMargin),
-        color: buttonContainerColor,
+        margin: EdgeInsets.only(top: kUpperContainerMargin),
+        color: kButtonContainerColor,
         child: Center(
           child: Text(
             "CALCULATE",
-            style: TextStyle(
-              fontSize: allFontSize,
-            ),
+            style: kButtonTextStyle,
           ),
         ),
       ),
@@ -93,11 +77,43 @@ class _InputPageState extends State<InputPage> {
   Expanded addRows(int num, ContainerType containerType) {
     List<Widget> list = [];
     if (containerType == ContainerType.Gender) {
-      list.add(addContainer(maleCardColor, Gender.male));
-      list.add(addContainer(femaleCardColor, Gender.female));
+      list.add(
+        addContainer(
+          selectedGender == Gender.male ? kActiveCardColor : kInActiveCardColor,
+          Gender.male,
+        ),
+      );
+      list.add(
+        addContainer(
+          selectedGender == Gender.female
+              ? kActiveCardColor
+              : kInActiveCardColor,
+          Gender.female,
+        ),
+      );
+    } else if (containerType == ContainerType.Height) {
+      list.add(
+        addContainer(
+          kActiveCardColor,
+          ContainerType.Height,
+        ),
+      );
+    } else if (containerType == ContainerType.NoName) {
+      list.add(
+        addContainer(
+          kActiveCardColor,
+          ContainerType.weight,
+        ),
+      );
+      list.add(
+        addContainer(
+          kActiveCardColor,
+          ContainerType.age,
+        ),
+      );
     } else {
       for (int i = 0; i < num; i++) {
-        list.add(addContainer(activeCardColor, ContainerType.NoName));
+        list.add(addContainer(kActiveCardColor, ContainerType.NoName));
       }
     }
     return Expanded(
@@ -119,24 +135,150 @@ class _InputPageState extends State<InputPage> {
         label: "FEMALE",
         iconData: FontAwesomeIcons.venus,
       );
+    } else if (type == ContainerType.Height) {
+      iconContent = heightContainer();
+    } else if (type == ContainerType.weight) {
+      iconContent = addCustomWidgets("WEIGHT", weight, ContainerType.weight);
+    } else if (type == ContainerType.age) {
+      iconContent = addCustomWidgets("AGE", age, ContainerType.age);
     } else {
       iconContent = Container();
     }
 
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (type == Gender.male) {
-            updateButtonSelection(type);
-          } else if (type == Gender.female) {
-            updateButtonSelection(type);
-          }
+      child: ReusableCard(
+        cardColor: color,
+        cardChild: iconContent,
+        onPress: () {
+          setFunctionality(type);
         },
-        child: ReusableCard(
-          cardColor: color,
-          cardChild: iconContent,
-        ),
       ),
     );
+  }
+
+  void addAndMinusTheValue(ContainerType containerType, ButtonType buttonType) {
+    setState(() {
+      if (containerType == ContainerType.weight) {
+        if (buttonType == ButtonType.plus) {
+          weight++;
+        } else if (buttonType == ButtonType.minus) {
+          if (weight > 0) {
+            weight--;
+          }
+        }
+      } else if (containerType == ContainerType.age) {
+        if (buttonType == ButtonType.plus) {
+          age++;
+        } else if (buttonType == ButtonType.minus) {
+          if (age > 0) {
+            age--;
+          }
+        }
+      }
+    });
+  }
+
+  Container addCustomWidgets(
+      String label, int customVar, ContainerType containerType) {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: kLabelTextStyle,
+          ),
+          Text(
+            customVar.toString(),
+            style: kNumberTextStyle,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RoundIconButton(
+                icon: FontAwesomeIcons.minus,
+                onPress: () {
+                  addAndMinusTheValue(containerType, ButtonType.minus);
+                },
+              ),
+              SizedBox(
+                width: kSizeBoxHeight,
+              ),
+              RoundIconButton(
+                icon: FontAwesomeIcons.plus,
+                onPress: () {
+                  addAndMinusTheValue(containerType, ButtonType.plus);
+                },
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Container heightContainer() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            "HEIGHT",
+            style: kLabelTextStyle,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                height.toString(),
+                style: kNumberTextStyle,
+              ),
+              Text(
+                "cm",
+                style: kLabelTextStyle,
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              thumbColor: kButtonContainerColor,
+              activeTrackColor: Colors.white,
+              inactiveTrackColor: Color(0xFF8D8E98),
+              overlayColor: Color(0x29Eb1555),
+              thumbShape: RoundSliderThumbShape(
+                enabledThumbRadius: 15.0,
+              ),
+              overlayShape: RoundSliderOverlayShape(
+                overlayRadius: 20.0,
+              ),
+            ),
+            child: Slider(
+              value: height.toDouble(),
+              min: kMinHeight,
+              max: kMaxHeight,
+              onChanged: (double newValue) {
+                setState(() {
+                  height = newValue.toInt();
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void setFunctionality(var type) {
+    setState(() {
+      if (type == Gender.male) {
+        selectedGender = Gender.male;
+      } else if (type == Gender.female) {
+        selectedGender = Gender.female;
+      }
+    });
   }
 }
