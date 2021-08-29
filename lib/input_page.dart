@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+enum ContainerType { Gender }
+
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
   @override
@@ -10,7 +12,14 @@ class _InputPageState extends State<InputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(),
+      appBar: AppBar(
+        title: Text('BMI CALCULATOR'),
+      ),
+      body: Center(
+        child: Column(
+          children: [],
+        ),
+      ),
     );
   }
 }
