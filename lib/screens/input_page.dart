@@ -1,29 +1,12 @@
+import 'package:bmi_calculator/calculator_brain.dart';
+import 'package:bmi_calculator/components/custom_button.dart';
+import 'package:bmi_calculator/components/icon_content.dart';
+import 'package:bmi_calculator/components/reusable_card.dart';
+import 'package:bmi_calculator/components/round_icon_button.dart';
+import 'package:bmi_calculator/constants.dart';
+import 'package:bmi_calculator/screens/result_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'constants.dart';
-import 'icon_content.dart';
-import 'reusable_card.dart';
-import 'round_icon_button.dart';
-
-enum ContainerType {
-  Gender,
-  NoName,
-  Height,
-  weight,
-  age,
-}
-
-enum Gender {
-  male,
-  female,
-  unKnown,
-}
-
-enum ButtonType {
-  plus,
-  minus,
-}
 
 class InputPage extends StatefulWidget {
   const InputPage({Key? key}) : super(key: key);
@@ -32,7 +15,7 @@ class InputPage extends StatefulWidget {
 }
 
 class _InputPageState extends State<InputPage> {
-  late Gender selectedGender = Gender.unKnown;
+  late Gender selectedGender = Gender.female;
   int height = 180;
   int weight = 60;
   int age = 19;
@@ -57,21 +40,29 @@ class _InputPageState extends State<InputPage> {
     list.add(addRows(2, ContainerType.Gender));
     list.add(addRows(1, ContainerType.Height));
     list.add(addRows(2, ContainerType.NoName));
-    list.add(
-      Container(
-        height: kButtonContainerHeight,
-        width: double.infinity,
-        margin: EdgeInsets.only(top: kUpperContainerMargin),
-        color: kButtonContainerColor,
-        child: Center(
-          child: Text(
-            "CALCULATE",
-            style: kButtonTextStyle,
-          ),
-        ),
+    list.add(CustomButtonWidget(
+      label: "CALCULATE",
+      onPress: () {
+        moveToCalculate(context);
+      },
+    ));
+    return list;
+  }
+
+  void moveToCalculate(BuildContext context) {
+    CalculatorBrain calc = CalculatorBrain(height: height, weight: weight);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return ResultPage(
+            bMIResult: calc.calculateBMI(),
+            result: calc.getResult(),
+            interpretation: calc.getInterpretation(),
+          );
+        },
       ),
     );
-    return list;
   }
 
   Expanded addRows(int num, ContainerType containerType) {

@@ -1,5 +1,24 @@
 import 'package:flutter/material.dart';
 
+enum ContainerType {
+  Gender,
+  NoName,
+  Height,
+  weight,
+  age,
+}
+
+enum Gender {
+  male,
+  female,
+  unKnown,
+}
+
+enum ButtonType {
+  plus,
+  minus,
+}
+
 const kButtonContainerHeight = 80.0;
 const kActiveCardColor = Color(0xFF1D1E33);
 const kInActiveCardColor = Color(0xFF111328);
@@ -24,4 +43,25 @@ const kNumberTextStyle = TextStyle(
 const kButtonTextStyle = TextStyle(
   fontSize: 25.0,
   fontWeight: FontWeight.w900,
+);
+
+const kTitleTextStyle = TextStyle(
+  fontSize: 50.0,
+  fontWeight: FontWeight.bold,
+);
+
+const kGreenTextStyle = TextStyle(
+  fontSize: 22.0,
+  color: Color(0xFF24D876),
+  letterSpacing: 2.5,
+  fontWeight: FontWeight.bold,
+);
+
+const kBMITextStyle = TextStyle(
+  fontSize: 100.0,
+  fontWeight: FontWeight.bold,
+);
+
+const kBodyTextStyle = TextStyle(
+  fontSize: 22.0,
 );
